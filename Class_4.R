@@ -25,3 +25,18 @@ residuals(linear_model)
 sum(residuals(linear_model))
 
 
+#Visualising the Linear model
+plot(dataset$GNP, dataset$Employed, main = 'Simple Linear', xlab = 'GNP', ylab = 'Employed', col = 'red', pch = 16)
+abline(lm(Employed ~ GNP, data = dataset))
+
+
+#Visualisng the Linear model with ggplot2
+
+dataset = dataset[, c(2,7)]
+
+
+ggplot(data = dataset, aes(x =  dataset$GNP, y = dataset$Employed)) +
+  geom_point() +
+  geom_smooth(method = lm)
+
+
