@@ -6,6 +6,7 @@ write.csv(mtcars, '/Users/ravikiran/Desktop/Imarticus/Academics/class practice/R
 dataset = read.csv('mtcars.csv')
 str(dataset) # Checking the structure of the dataset
 
+dataset = mtcars
 # Creating a correlation matrix
 cor(dataset[2:12])
 
@@ -23,3 +24,7 @@ fitted(regressor)
 residuals(regressor)
 mean(residuals(regressor))
 plot(regressor)
+
+
+summary(regressor)$coefficients
+lm.beta(regressor)
