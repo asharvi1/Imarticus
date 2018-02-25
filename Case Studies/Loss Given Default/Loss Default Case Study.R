@@ -97,5 +97,26 @@ test_pred_full = cbind(test_set, test_pred)
 write.csv(test_pred_full, 'test_pred_full.csv')
 
 # Calculating MAPE
-
 MAPE = mean(abs(residuals(regressor_final_1)))*100
+
+# Calculating RMSE with hydroGOF package
+RMSE = rmse(train_pred_full$train_pred, train_pred_full$Losses.in.Thousands)
+RMSE
+
+# Calculating the std.error with plotrix package
+std.error(residuals(regressor_final_1))
+
+
+# Plotting the model
+
+ggplot() +
+  geom_point(aes(train_pred_full$Years.of.Experience, train_pred_full$Number.of.Vehicles)) +
+  geom_line(aes(x = train_pred_full$Years.of.Experience, train_pred_full$train_pred))
+
+
+
+
+
+
+
+
