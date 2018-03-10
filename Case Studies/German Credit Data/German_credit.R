@@ -72,8 +72,40 @@ ROCpred = prediction(train_pred$train_pred, training_set_no_imp$Status)
 ROCpref = performance(ROCpred, 'tpr', 'fpr')
 plot(ROCpref)
 
-# Calculating the AUc value for the classifier_no_imp model
+# Calculating the AUC value for the classifier_no_imp model from pROC package
 auc = auc(training_set_no_imp$Status, train_pred$train_pred)
+
+# Calculating Loglikelihood 
+loglik = logLik(classifier_no_imp)
+loglik2 = -2 * loglik
+loglik2
+
+# Calculating Gini Coefficient from reldist package
+gini = gini(as.numeric(training_set_no_imp$Status), train_pred$train_pred)
+gini1 = (2 * auc) - 1
+
+# Calculating Gini Coefficient with ineq package
+ineq(training_set_no_imp$Status, type = 'Gini')
+# ineq(training_set_no_imp$Status, train_pred$train_pred, type = 'Gini')
+
+# Calculating Concordant and Discordant pairs from Informationvalue package
+concordace = Concordance(training_set_no_imp$Status, train_pred$train_pred)
+# The above function also calculates the discordance pairs too and is shown in the output as a list
+
+# Calculating KS statastic
+ks_tes = ks.test(training_set_no_imp$Status, train_pred$train_pred)
+
+# Calculating RMSE with formula and metrics package
+# RMSE = sqrt(mean((training_set_no_imp$Status - train_pred$train_pred) ^ 2))
+RMSE = Metrics::rmse(as.numeric(training_set_no_imp$Status), train_pred$train_pred)
+
+# Creating a confusion matrix
+# confusion_matrix = table(train_pred$train_pred, training_set_no_imp$Status)# as there are probs in the predicted set, we cannot just use the table
+# To tackle this issue we use confusionMatrix from the informationValue package
+confusionMatrix(training_set_no_imp$Status, train_pred$train_pred, threshold = 0.5)
+
+
+
 
 
 
