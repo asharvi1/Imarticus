@@ -18,7 +18,7 @@ test_set = subset(dataset, split == FALSE)
 classifier = glm(formula = Status ~ ., family = 'binomial', data = training_set)
 summary(classifier)
 
-# To calculate the pseudo R^2 we must use the nagelkekeR2
+# To calculate the pseudo R^2 we must use the nagelkekeR2 from the fmsb package
 classifier_NKR2 = NagelkerkeR2(classifier)
 
 # Identifying the outliers
@@ -68,6 +68,8 @@ classifier_no_imp_NKR2
 # Creating the ROC curve with the ROCR package
 train_pred = fitted(classifier_no_imp)
 train_pred = as.data.frame(train_pred)
+test_pred = predict(classifier_no_imp, test_set[ ,-21], type = 'response')
+test_pred = as.data.frame(test_pred)
 ROCpred = prediction(train_pred$train_pred, training_set_no_imp$Status)
 ROCpref = performance(ROCpred, 'tpr', 'fpr')
 plot(ROCpref)
@@ -102,12 +104,55 @@ RMSE = Metrics::rmse(as.numeric(training_set_no_imp$Status), train_pred$train_pr
 # Creating a confusion matrix
 # confusion_matrix = table(train_pred$train_pred, training_set_no_imp$Status)# as there are probs in the predicted set, we cannot just use the table
 # To tackle this issue we use confusionMatrix from the informationValue package
-confusionMatrix(training_set_no_imp$Status, train_pred$train_pred, threshold = 0.5)
+confusion_matrix = confusionMatrix(training_set_no_imp$Status, train_pred$train_pred, threshold = 0.5)
 
+## Diagnosing the predicted test set values
+# Creating a daatframe that contains the test_set Status variable and the predicted test set values
+test_set_final = as.data.frame(cbind(as.numeric(levels(test_set$Status)[test_set$Status]), test_pred$test_pred))
+ROCpred_test_set = prediction(test_pred$test_pred, test_set$Status)
+ROCperf_test_set = performance(ROCpred_test_set, 'tpr', 'fpr')
+plot(ROCperf_test_set, main = 'FPR vs TPR for test_set')
 
+# Calculating the auc values for the test_pred
+auc_test_set = auc(test_set$Status, test_pred$test_pred)
 
+# Calculating Gini Coefficient for the test_pred
+gini_test_set = Gini(as.numeric(test_set$Status), test_pred$test_pred)
 
+# Calculating Concordat pairs and the discordant pairs for the test_pred
+concordance_test_set = Concordance(actuals = test_set$Status, test_pred$test_pred)
 
+# Calculating KS Statastic
+kstest_test_set = ks.test(test_set$Status, test_pred$test_pred)
+
+# Creating Confusion Matrix for the test_pred
+confusion_matrix_test_set_0.1 = confusionMatrix(actuals = test_set$Status, predictedScores = test_pred$test_pred, threshold = 0.1)
+
+# Creating a function to calculate the accuracy
+accuracy_cm = function(confusionmatrix){
+  accuracy = (confusionmatrix[1,1] + confusionmatrix[2,2]) / (sum(confusionmatrix))
+}
+
+accuracy_test_pred_0.1 = accuracy_cm(confusion_matrix_test_set_0.1)
+
+# Creating a function to find the best treshold
+best_treshold = function(actuals, preds){
+  b_tresh = numeric()
+  accuracy_v = numeric()
+  for (i in seq(0.1, 0.9, by = 0.1)){
+    confusion_matrix = confusionMatrix(actuals = actuals, predictedScores = preds, threshold = i)
+    accuracy_confusion_matrix = accuracy_cm(confusion_matrix)
+    b_tresh = c(b_tresh, i)
+    accuracy_v = c(accuracy_v, accuracy_confusion_matrix)
+  }
+  best_treshold_df = as.data.frame(cbind(b_tresh, accuracy_v))
+  assign('best_treshold_df', best_treshold_df, envir = .GlobalEnv)
+}
+
+# Finding the best tresholds
+best_treshold_df = best_treshold(actuals = test_set_actuals, preds = test_pred$test_pred)
+best_treshold_df[which.max(best_treshold_df$accuracy_v), ]
+best_treshold_df$b_tresh[which.max(best_treshold_df$accuracy_v)]
 
 
 
