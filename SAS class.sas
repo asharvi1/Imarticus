@@ -580,3 +580,235 @@ data employee2;
 set employee1;
 Last_Initial = substr(Last_Name, 1, 1);
 run;
+
+
+data demo;
+set sashelp.demographics;
+run;
+
+/* tranwrd() function is used to replce one word with another */
+data demo_name;
+set demo;
+Name1 = tranwrd(NAME, 'CANADA', 'Hyderabad');
+run;
+
+proc print data = demo_name;
+run;
+
+/* Double pipe(||) operator is used to concatonate two variables */
+/* If we concatonate two columns in this manner, the new created column will possess extra spaces between the words */
+data demo_Name1;
+set demo;
+Address = name||','||region;
+run;
+
+/* To contradict the previous concatonation rule, we use trim() function to remove any spaces created while joining the two variables */
+data demo_name2;
+set demo;
+Address = trim(name)||','||trim(region);
+run;
+
+/* Filtering with index function, in this case we are checking for the 'ITI' letters in the name variable */
+data demo_filter;
+set demo;
+if index(upcase(name), 'ITI') > 0;
+run;
+
+proc print data = demo_filter;
+run;
+
+/* converting the name variable in demographics dataset to lowercase and then to upper case */
+data demo_lowcase;
+set demo;
+name = lowcase(name);
+run;
+
+data demo_propcase;
+set demo;
+name = propcase(name);
+run;
+
+data demo_upcase;
+set demo;
+name = upcase(name);
+run;
+
+data demo_int;
+set demo;
+totalFR = int(totalFR);
+run;
+
+data demo_round;
+set demo;
+totalFR = round(totalFR); /* We can also add an extra arguement in the round function(round(variable, digits)), the extra second arguement acts as a number of digits to round off */
+run;
+
+data demo_ceil;
+set demo;
+totalFR = ceil(totalFR);
+run;
+
+data demo_floor;
+set demo;
+totalFR = floor(totalFR);
+run;
+
+/* Here it gives the nearest multiple of the variable */
+data demo_round_digits;
+set demo;
+per = round(totalFR, 0.25);
+perhalf = round(totalFR, 0.5);
+run;
+
+data sum;
+tot = sum(1,2,3,4);
+run;
+
+data descript;
+var1 = 12;
+var2 = .;
+var3 = 7;
+var4 = 5;
+varssum = sum(of var1-var4);
+varmeans = mean(of var1-var4);
+nummiss = nmiss(var1,var2,var3,var4);
+cmiss = cmiss(of var1-var4);
+run;
+
+proc print data = descript;
+run;
+
+/* Date functions */
+/* today() */
+/* MDY(month, day, year) */
+/* intck() */
+/* intnx() */
+/* weekday() */
+/* year() */
+/* month() */
+/* day() */
+
+data date;
+input Date;
+format date;
+cards;
+21/01/2017
+01/02/2017
+06/03/2017
+;
+run;
+
+data todaydate;
+date = today();
+weekday = weekday(date);
+run;
+
+proc print data = todaydate;
+format date date8.;
+run;
+
+/* input tells the sas that the entered string is in a specific format and change it to the default of the belonged category */
+data conversions;
+CVar1 = '32000';
+CVar2 = '32.000';
+CVar3 = '03may2008';
+CVar4 = '030508';
+NVar1 = input(CVar1, 5.);
+NVar2 = input(CVar2, commax6.);
+NVar3 = input(CVar3, date9.);
+NVar4 = input(CVar4, ddmmyy6.);
+run;
+
+proc print data = conversions;
+format NVar3 date9. NVar4 date9.;
+run;
+
+/* put is used to change the elements into the required format */
+data conversion1;
+nvar1 = 614;
+nvar2 = 55000;
+nvar3 = 366;
+cvar1 = put(nvar1, 3.);
+cvar2 = put(nvar2, dollar7.);
+cvar3 = put(nvar3, date9.);
+run;
+
+proc contents data = conversion1;
+run;
+
+/* Loops in SAS */
+data earnings;
+amount = 1000;
+rate = 0.075/12;
+do month = 1 to 12 by 1;
+earned+(amount+earned)*(rate);
+output;
+end;
+run;
+
+data cumm;
+amount = 100;
+do step = 1 to 10 by 1;
+cum_amount+amount;
+output;
+end;
+run;
+
+data earnings3;
+amount = 5000;
+rate = 0.0625;
+do qtr = 1 to 12;
+earned+(amount+earned)*(rate/4);
+output;
+end;
+run;
+
+/* with output */
+data question;
+value = 2000;
+do year = 1 to 20;
+interest = value * 0.075;
+value+interest;
+output;
+end;
+run;
+
+/* with output */
+data question;
+value = 2000;
+do year = 1 to 20;
+interest = value * 0.075;
+value+interest;
+end;
+run;
+
+proc print data = question;
+run;
+
+
+data mother;
+input mid cid1 age1 sex1$ cid2 age2 sex2$ cid3 age3 sex3$;
+cards;
+1 1 2 f 2 5 m 3 10 f
+2 1 10 m 2 12 m 3 13 f
+3 1 7 f 2 20 f 3 23 m
+;
+run;
+
+data child(keep= mid cid age sex);
+
+set mother;
+
+array c(1:3) cid1-cid3;
+array a(1:3) age1-age3;
+array s(1:3) sex1-sex3;
+
+do i = 1 to 3;
+cid = c(i);
+age = a(i);
+sex = s(i);
+
+if not missing(cid) then output;
+
+end;
+run;
