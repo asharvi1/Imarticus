@@ -980,3 +980,93 @@ quit;
 
 proc print data = patient_rec_FJ;
 run;
+
+proc sql <options>;
+quit;
+
+proc sql;
+select count(<column name>) as <new name>
+from <dataset name>
+group by <categorical column name>;
+quit;
+
+/* using a having clause */
+proc sql;
+select jobcode,avg(salary) as Avg
+from <dataset name> group by <categorical column> having
+avg(salary)>40000 order by jobcode;
+quit;
+
+
+data demo;
+set sashelp.demographics;
+run;
+
+/* playing with the having clause */
+proc sql;
+select region,min(pop) as min_pop
+from demo group by region having min(pop)>10000 order by region;
+quit;
+
+proc sql;
+create table demo_amr as
+select *
+from demo
+where popagr>0.01 and region = 'AMR';
+quit;
+
+proc sql;
+create table demo_amr_having as
+select *
+from demo group by region having popagr>0.01 and region = 'AMR' order by region;
+quit;
+
+/* having clause checks with the condition after the grouping */
+proc sql;
+create table demo_high as
+select region,min(pop) as min_pop
+from demo group by region having min(pop)>10000 order by region;
+quit;
+
+/* Where statement check with the records */
+proc sql;
+create table demo_high1 as
+select region, min(pop) as min_pop
+from demo
+where pop>10000
+group by region;
+quit;
+
+/* Having does the artimatic operation after the sorting */
+/* Where as where statement does the artimatic operation on the records directly */
+proc sql;
+create table demo_high2 as
+select region, avg(pop) as avg_pop
+from demo group by region having avg(pop)>20000000 order by region;
+quit;
+
+/* Coalesce function */
+/* It checks the high fill rate for the common variable in a number of datasets */
+
+/* Fuzzy merge can be through column wise and also approx merge with the record wise */
+
+/* MACROS */
+/* % and & are the macro trigger variables */
+
+data demo;
+set sashelp.demographics;
+run;
+
+/* Initiation of a reference variable */
+%let region='AMR'; /* reference variable */
+proc print data = demo;
+title 'Table with only the America continent';
+where region = &region;
+run;
+proc freq data=demo;
+title 'No of records in America continent';
+table region;
+where region=&region;
+run;
+
+/* Initiation of a MACRO */
