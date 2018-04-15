@@ -581,7 +581,6 @@ set employee1;
 Last_Initial = substr(Last_Name, 1, 1);
 run;
 
-
 data demo;
 set sashelp.demographics;
 run;
@@ -811,4 +810,173 @@ sex = s(i);
 if not missing(cid) then output;
 
 end;
+run;
+
+
+/* SQL Proc in SAS */
+/* Proc SQl; */
+/* select pop,popagr */
+/* from demo; */ /* if we want a new dataset we can write from demo to demo1 */
+/* where popagr > 0.5; */
+/* order by pop desc; */
+/* group by region; */
+/* quit; */
+
+/* Insert records to a table */
+/* COALESCE function */
+/* Summarize data */
+/* Fuzzy merge */
+
+/* Infile Statements */
+/* obs */
+/* firstobs */
+/* dlm */
+/* dsd */
+/* missover */
+/* truncover */
+
+data demo;
+set sashelp.demographics;
+run;
+
+proc sql;
+select pop,popagr,region,pop+(pop*popagr) as new_pop
+from demo
+order by region; /* we can specify the order by with asc(for ascending) dsc(for descending) */
+quit; /* for multiple sorting we have to specify the other variables after the first one with a comma and the sorting is done cummulatively */
+
+/* To check the total number of records in a dataset */
+proc sql;
+select count(*) as total_rec  /* we can write any other function other than count, such as distinct(unique) */
+from <dataset name>;
+quit;
+
+/* Table joins using SQL */
+
+/* 	 	   |	R  |  SAS  | SAS SQL */
+/* columns | cbind | merge | joins */
+/* rows    | rbind | set   | */
+
+proc sql;
+create table <dataset name> as
+select a.<column name>,
+a.<column name>,
+b.<column name>,
+b.<column name>,
+from <dataset1 name> as a, <dataset2 name> as b
+where a.<column name> = b.<column name>
+and a.<column name> = b.<column name>;
+quit;
+
+/* In order to do a left join */
+proc sql;
+create table <dataset name> as
+select a.<column name>,
+a.<column name>,
+b.<column name>,
+b.<column name>,
+from <dataset1 name> left join <dataset2 name>
+where a.<column name> = b.<column name>
+and a.<column name> = b.<column name>;
+quit;
+
+
+data vitals;
+input patient 3. date date10. pulse temp bps bpd;
+cards;
+101 25may2001 2 98.5 130 88
+101 01jun2001 5 98.6 133 92
+101 08jun2001 4 98.5 136 90
+102 30jul2001 1 99.0 141 93
+102 06aug2001 7 98.7 144 97
+102 13aug2001 8 98.7 142 93
+103 24jul2001 7 98.3 137 79
+103 31jul2001 7 98.5 133 74
+103 07aug2001 8 98.6 140 80
+103 14aug2001 5 99.2 147 89
+104 22aug2001 2 98.8 128 83
+104 29aug2001 9 99.1 131 86
+104 05sep2001 1 98.9 127 82
+;
+run;
+
+data Dosing;
+input patient 3. date med$ doses amt unit$;
+format date date9.;
+cards;
+102 15186 A 2 1.2 mg
+102 15198 A 3 1.0 mg
+102 15200 A 2 1.2 mg
+103 15180 B 3 3.5 mg
+103 15187 B 3 3.5 mg
+103 15195 B 3 3.5 mg
+104 15209 A 2 1.5 mg
+104 15216 A 2 1.5 mg
+104 15223 A 2 1.5 mg
+105 15144 B 1 4.5 mg
+105 15151 B 2 3.0 mg
+105 15158 B 1 5.0 mg
+;
+run;
+
+data vitals1;
+set vitals;
+format date date9.;
+run;
+
+proc print data = vitals1;
+run;
+
+proc sql;
+create table patient_rec as
+select a.patient,
+a.date,
+a.med,
+b.pulse,
+b.temp
+from dosing1 as a,vitals1 as b
+where a.patient=b.patient
+and a.date=b.date;
+quit;
+
+proc print data = patient_rec;
+run;
+
+proc sql;
+create table patient_rec_LJ as
+select a.patient,a.date,
+a.med,b.pulse,b.temp
+from dosing1 as a left join vitals1 as b
+on a.patient=b.patient
+and a.date=b.date;
+quit;
+
+proc print data = patient_rec_LJ;
+run;
+
+
+/* Performing a right join with sql */
+proc sql;
+create table patient_rec_RJ as
+select a.patient,a.date,
+a.med,b.pulse,b.temp
+from dosing1 as a right join vitals1 as b
+on a.patient=b.patient
+and a.date=b.date;
+quit;
+
+proc print data = patient_rec_RJ;
+run;
+
+/* Performing a full join with sql */
+proc sql;
+create table patient_rec_FJ as
+select a.patient,a.date,
+a.med,b.pulse,b.temp
+from dosing1 as a full join vitals1 as b
+on a.patient=b.patient
+and a.date=b.date;
+quit;
+
+proc print data = patient_rec_FJ;
 run;
