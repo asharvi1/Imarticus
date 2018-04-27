@@ -48,7 +48,7 @@ word = 'apple|lime|orange'
 v = strsplit(word, split = '|', fixed = TRUE)#Splitting a string with respect to a seperator
 v
 
-v[[1]][1]#indexing a vector
+v[[1]][1]#indexing a list
 
 
 ##Matrices

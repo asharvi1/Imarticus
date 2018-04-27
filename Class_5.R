@@ -8,9 +8,9 @@ str(dataset) # Checking the structure of the dataset
 
 dataset = mtcars
 # Creating a correlation matrix
-cor(dataset[2:12])
+cor(dataset[2:11])
 
-corPlot(dataset[2:12])# Checking the correlation between the variables with the openair package
+corPlot(dataset[2:11])# Checking the correlation between the variables with the openair package
 
 # Plotting desnity plot
 
